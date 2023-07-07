@@ -631,13 +631,14 @@ def idiff(eq, y, x, n=1):
         dydx = dydx.diff(x)
 
 
-def intersection(*entities, pairwise=False, **kwargs):
+def intersection(*entities, pairwise=False, scattered=False, **kwargs):
     """The intersection of a collection of GeometryEntity instances.
 
     Parameters
     ==========
     entities : sequence of GeometryEntity
     pairwise (keyword argument) : Can be either True or False
+    scattered (keyword argument) : Can be either True or False
 
     Returns
     =======
@@ -667,6 +668,9 @@ def intersection(*entities, pairwise=False, **kwargs):
     Case 2: When the keyword argument 'pairwise' is True:
     In this case, the functions returns a list intersections that occur
     between any pair of entities.
+
+    Case 2a: When the keyword argument 'pairwise' and 'scattered' is True:
+    If entities are small on big distance it only checkes for colse ones.
 
     See Also
     ========
@@ -709,6 +713,21 @@ def intersection(*entities, pairwise=False, **kwargs):
                 newres.extend(x.intersection(entity))
             res = newres
         return res
+
+    def frame(p):
+        xmin = xmax = p.args[0].args[0]
+        ymax = ymin = p.args[0].args[1]
+    
+        for i in p.args:
+            if i.args[0] > xmax: xmax = i.args[0]
+            elif i.args[0] < xmin: xmin = i.args[0]
+            if i.args[1] > ymax: ymax = i.args[1]
+            elif i.args[1] < ymin: ymin = i.args[1]
+    
+        return xmin, xmax, ymin, ymax
+
+    if scattered:
+        pass
 
     # find all pairwise intersections
     ans = []
